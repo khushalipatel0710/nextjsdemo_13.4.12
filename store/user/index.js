@@ -17,17 +17,15 @@ export const appUsersSlice = createSlice({
   name: 'appUsers',
   initialState: {
     data: [],
-    total: 1,
-    allData: {},
+    
    
   },
   reducers: {},
   extraReducers: builder => {
     builder.addCase(fetchData.fulfilled, (state, action) => {
       console.log(action.payload,"Dfdsds")
-      state.data = action.payload?.data.docs
-      state.total = action.payload?.data.total
-      state.allData = action.payload.data
+      state.data = action.payload?.data
+      
     })
      
   }

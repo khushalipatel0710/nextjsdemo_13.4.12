@@ -1,8 +1,4 @@
 import nextConnect from "next-connect";
-import { User } from "../../../models/index";
-import { paginateRequestParams, commonResponse } from "../../../lib/utils";
-import common from "../../../static/static";
-import { Op } from 'sequelize'
 
 const apiRoute = nextConnect({
   onError(error, req, res) {
@@ -15,104 +11,65 @@ const apiRoute = nextConnect({
   },
 });
 
-var response
+const data = [
+  {
+    id: 1,
+    name: "khushali",
+    age: 22,
+    city: "supedi",
+    gender: "female",
+  },
+  {
+    id: 2,
+    name: "swati",
+    age: 28,
+    city: "rajkot",
+    gender: "female",
+  },
+  {
+    id: 3,
+    name: "hardi",
+    age: 22,
+    city: "Ahmedabad",
+    gender: "female",
+  },
+];
 apiRoute.post(async (req, res) => {
-  let body = req.body.data;
-  console.log("body",body);
+  let body = req.body;
   try {
-    const checkUser = await User.findOne({
-      where: {
-        email: body.email,
-      },
-      raw: true,
-    });
-    if (checkUser) {
-      const response = commonResponse(false, {}, "Email already used", {
-        email: "Email already used",
-      });
-
-      return res
-        .status(common.HTTP_RESPONSE.HTTP_VALIDATION_ERROR)
-        .json(response);
-    }
-
-    const user = await User.create(body);
-    response = commonResponse(true, user, "User created Successfully", null);
-
-    return res.status(common.HTTP_RESPONSE.HTTP_SUCCESS).json(response);
+    console.log("body_________________", body);
+    // body.id = data.length + 1
+    data.push(body);
+    return res.status(200).json({ data: data });
   } catch (error) {
-     return res
-      .status(common.HTTP_RESPONSE.HTTP_NOT_FOUND)
-      .json({ message: error.message });
-  
+    console.log(error);
   }
 });
 apiRoute.put(async (req, res) => {
-  let reqBody = req.body.data;
+  let body = req.body;
   try {
-    console.log("reqBody",reqBody);
-    const checkUser = await User.findOne({
-          where: {
-            email: reqBody.email
-          },
-          raw: true
-        })
-        if (checkUser) {
-          if (checkUser.id !== reqBody.id) {
-            const response = commonResponse(false, {}, 'Email already used', {
-              email: 'Email already used'
-            })
-
-            return res.status(common.HTTP_RESPONSE.HTTP_VALIDATION_ERROR).json(response)
-          }
-        }
-      
-
-        const user = await User.update(reqBody, {
-          where: {
-            id: reqBody.id
-          }
-        })
-        const response = commonResponse(true, user, 'User updated Successfully', null)
-
-        return res.status(common.HTTP_RESPONSE.HTTP_SUCCESS).json(response)
+    console.log("body_________________", body);
+    const updatedData = data.map((a) => {
+      if (a.id == body.id) {
+        (a.name = body.name),
+          (a.city = body.city),
+          (a.gender = body.gender),
+          (a.status = body.status),
+          (a.age = body.age);
+      }
+      return a;
+    });
+    return res.status(200).json({ data: updatedData });
   } catch (error) {
-    return res
-      .status(common.HTTP_RESPONSE.HTTP_NOT_FOUND)
-      .json({ message: error.message });
+    console.log(error);
   }
-  
 });
 apiRoute.get(async (req, res) => {
   try {
-    console.log( req.query," req.query____________________");
-    const query = req.query
-    const { limit, page } = paginateRequestParams(query);
-    delete query.page;
-    delete query.limit;
-    var queryValue = {
-      email: { [Op.notIn]: ["admin@gmail.com"] },
-    };
-    const options = {
-      page: Number(page), // Default 1
-      paginate: Number(limit), // Default 25,
-      where: queryValue,
-      order: [["updatedAt", "DESC"]],
-    };
-    const users = await User.paginate(options);
-    const response = commonResponse(
-      true,
-      users,
-      "User fetched Successfully",
-      null
-    );
-
-    return res.status(common.HTTP_RESPONSE.HTTP_SUCCESS).json(response);
+    return res.status(200).json({ data: data });
   } catch (error) {
     console.log(error);
-    return res
-      .status(common.HTTP_RESPONSE.HTTP_NOT_FOUND)
-      .json({ message: error.message });
+    return res.status(400).json({ message: "Something went wrong" });
   }
 });
 

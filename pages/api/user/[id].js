@@ -1,7 +1,5 @@
 import nextConnect from "next-connect";
-import { User } from "../../../models/index";
-import {  commonResponse } from "../../../lib/utils";
-import common from "../../../static/static";
+
 const apiRoute = nextConnect({
   onError(error, req, res) {
     res
@@ -13,22 +11,40 @@ const apiRoute = nextConnect({
   },
 });
 
+const data = [
+  {
+    id: 1,
+    name: "khushali",
+    age: 22,
+    city: "supedi",
+    gender: "female",
+  },
+  {
+    id: 2,
+    name: "swati",
+    age: 28,
+    city: "rajkot",
+    gender: "female",
+  },
+  {
+    id: 3,
+    name: "hardi",
+    age: 22,
+    city: "Ahmedabad",
+    gender: "female",
+  },
+];
+
 apiRoute.delete(async (req, res) => {
   try {
     console.log("req.body", req.query);
 
-   const user = await User.destroy({
-          where: {
-            id: req.query.id
-          }
-        })
-        const response = commonResponse(true, user, 'User delete Successfully', null)
-
-        return res.status(common.HTTP_RESPONSE.HTTP_SUCCESS).json(response)
-      } catch (error) {
-        return res.status(400).json({ message: error.message })
-      }
+    const deletedData = data.filter((a) => a.id != req.query.id);
+    return res.status(200).json({ data: deletedData });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({ message: "Something went wrong" });
+  }
 
 });
-
 export default apiRoute;
